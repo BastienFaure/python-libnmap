@@ -11,7 +11,7 @@ except ImportError:
 
 from xml.etree.ElementTree import iselement as et_iselement
 
-from libnmap.objects import NmapHost, NmapReport, NmapService
+from libnmap.objects import NmapHost, NmapReport, NmapService, NmapHostname
 
 
 class NmapParser(object):
@@ -364,8 +364,8 @@ class NmapParser(object):
         xelement = cls.__format_element(scanhostnames_data)
         hostnames = []
         for hname in xelement:
-            if hname.tag == "hostname":
-                hostnames.append(hname.get("name"))
+            if hname.tag == 'hostname':
+                hostnames.append(NmapHostname(hname.get('name'), hname.get("type")))
         return hostnames
 
     @classmethod
@@ -499,13 +499,12 @@ class NmapParser(object):
             if telem.tag == "elem":
                 if tkey in tdict:
                     if not isinstance(tdict[tkey], list):
-                        tdict[tkey] = [tdict[tkey]]
+                        tdict[tkey] = [tdict[tkey], ]
                     tdict[tkey].append(telem.text)
                 else:
                     tdict[tkey] = telem.text
             elif telem.tag == "table":
                 stdict = cls.__parse_script_table(telem)
-
                 # Handle duplicate table keys
                 if tkey in tdict:
                     if not isinstance(tdict[tkey], list):
